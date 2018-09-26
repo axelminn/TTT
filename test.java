@@ -17,7 +17,7 @@ public class test {
     System.out.println(output);
   }
 
-  public static int[][] the_state = { { 1, 0, 0, 0 }, { 0, 1, 0, 2 }, { 0, 0, 0, 2 }, { 0, 0, 0, 0 } };
+  public static int[][] the_state = { { 0, 2, 2, 0 }, { 0, 0, 0, 0 }, { 1, 1, 1, 0 }, { 0, 2, 0, 0 } };
 
   public static int evaluateBoard(int[][] state) {
     int score = 0;
@@ -83,7 +83,7 @@ public class test {
     X = 0;
     O = 0;
     // Check Diagonal (Second)
-    for (int i = 2, j = 0; i > -1; --i, ++j) {
+    for (int i = 3, j = 0; i > -1; i--, j++) {
       if (state[i][j] == 1)
         X++;
       else if (state[i][j] == 2)
@@ -91,7 +91,7 @@ public class test {
     }
 
     score += changeInScore(X, O);
-    System.out.println("After second diog score is " + score);
+    System.out.println("Final score " + score);
 
     // return (player == 1) ? -score : score;
     return score;

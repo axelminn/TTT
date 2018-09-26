@@ -39,13 +39,15 @@ public class Player {
 
     if (this.hero == Constants.CELL_O) {
       System.err.println("Random value for player O");
-      return states.elementAt(random.nextInt(length));
+      // return states.elementAt(random.nextInt(length));
+      return states.elementAt(0);
     }
 
     if (this.isFirstTurn && this.hero == Constants.CELL_X) {
       System.err.println("Is this happening??");
       this.isFirstTurn = false;
-      return states.elementAt(random.nextInt(length));
+      // return states.elementAt(random.nextInt(length));
+      // return states.elementAt(0);
     }
 
     /**
@@ -60,7 +62,7 @@ public class Player {
     // int player = this.PLAYER_MAX;
 
     for (GameState state : states) {
-      int score = miniMaxPrune(state, this.hero, this.MAX_DEPTH, alpha, beta);
+      int score = miniMax(state, this.hero, this.MAX_DEPTH, alpha, beta);
       // int score = miniMax(state, this.hero, this.MAX_DEPTH);
       if (score > bestScore) {
         bestScore = score;
@@ -99,6 +101,50 @@ public class Player {
       }
       return bestScore;
     }
+  }
+
+  private int miniMax(GameState gameState, int player, int depth, int alpha, int beta) {
+    if (gameState.isEOG() || depth == 0)
+      return estimate(gameState, player);
+
+    Vector<GameState> states = new Vector<GameState>();
+    gameState.findPossibleMoves(states);
+
+    // int maxValue = Integer.MIN_VALUE;
+    // int minValue = Integer.MAX_VALUE;
+
+    for (int i = 0; i < states.size(); i++) {
+      int score = 0;
+      if (player == this.hero) {
+        // score = miniMax(states.elementAt(i), 2, depth - 1, alpha, beta);
+        // maxValue = Math.max(maxValue, score);
+        // alpha = Math.max(score, alpha);
+
+        score = miniMax(states.elementAt(i), this.villain, depth - 1, alpha, beta);
+        alpha = Math.max(alpha, score);
+        if (score > alpha)
+          alpha = score;
+      } else {
+        // score = miniMax(states.elementAt(i), 1, depth - 1, alpha, beta);
+        // minValue = Math.min(minValue, score);
+        // alpha = Math.min(score, alpha);
+
+        score = miniMax(states.elementAt(i), this.hero, depth - 1, alpha, beta);
+        beta = Math.min(beta, score);
+        if (score < beta)
+          beta = score;
+      }
+
+      // Pruning
+      if (alpha >= beta)
+        break;
+      // if (score == Integer.MAX_VALUE || score == Integer.MIN_VALUE) {
+      // // System.err.println("PRUNING!");
+      // break;
+      // }
+    }
+
+    return player == this.hero ? alpha : beta;
   }
 
   private int miniMaxPrune(GameState state, int player, int depth, int alpha, int beta) {
@@ -144,18 +190,16 @@ public class Player {
 
   private int estimate(GameState state, int player) {
     // Game is not over so max depth must be reached
-    // if (!state.isEOG()) {
-    return evaluateBoard(state, player);
-    // }
+    if (!state.isEOG()) {
+      return evaluateBoard(state, player);
+    }
 
-    // if ((state.isXWin() && (this.hero == Constants.CELL_X)) || (state.isOWin() &&
-    // (this.hero == Constants.CELL_O)))
-    // return 1000;
-    // else if ((state.isXWin() && (this.hero == Constants.CELL_O)) ||
-    // (state.isOWin() && (this.hero == Constants.CELL_X)))
-    // return -1000;
-    // else
-    // return 0;
+    if ((state.isXWin() && (this.hero == Constants.CELL_X)) || (state.isOWin() && (this.hero == Constants.CELL_O)))
+      return 1000;
+    else if ((state.isXWin() && (this.hero == Constants.CELL_O)) || (state.isOWin() && (this.hero == Constants.CELL_X)))
+      return -1000;
+    else
+      return 0;
   }
 
   private int evaluateSimple(GameState state, int playerIdx) {
@@ -262,8 +306,8 @@ public class Player {
 
     score += changeInScore(X, O);
 
-    // return player == this.hero ? score :
     return score;
+    // return player == this.hero ? score : -score;
   }
 
   private int changeInScore(int X, int O) {
